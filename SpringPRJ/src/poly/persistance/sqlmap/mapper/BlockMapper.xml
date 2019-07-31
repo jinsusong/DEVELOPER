@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- JAVA와 연결할 Mapper 파일 설정 -->
+<mapper namespace="poly.persistance.mapper.BlockMapper">
+	
+	
+	<!-- block num select -->
+	<select id="getBlockNum" resultType="BlockDTO">
+		SELECT  IFNULL(MAX(blocknumber), 0) +1 AS blocknumber
+		  FROM block
+	</select>
+	
+	<!-- block insert -->
+	<insert id="insertFirstBlock" parameterType="BlockDTO">
+		INSERT INTO block(
+			blocknumber,
+			timestamp,
+			blockhash,
+			nonce,
+			transaction,
+			previoushash,
+			latitude,
+			longitude,
+			geoaddr,
+			chgdt	
+		)VALUES(
+			#{blocknumber},
+			#{timestamp},
+			#{blockhash},
+			#{nonce},
+			#{transaction},
+			#{previousHash},
+			#{latitude},
+			#{longitude},
+			#{geoAddr},
+			now()
+			
+		)
+	</insert>
+	
+	<!-- block list -->
+	<select id="getlist" resultType="BlockDTO">
+		SELECT 
+			blocknumber,
+			timestamp,
+			blockhash,
+			nonce,
+			transaction,
+			previoushash
+		FROM block
+		ORDER BY blocknumber DESC
+	</select>
+	
+	<!-- location -->
+	<select id="getLocation" resultType="BlockDTO">
+		SELECT 
+			blocknumber, 
+			latitude,
+		    longitude
+		FROM block
+	</select>
+	
+	<!-- analysis -->
+	<select id="getanalysis" resultType="BlockDTO" parameterType="BlockDTO">
+		SELECT 
+			latitude, 
+			longitude,
+		    geoaddr,
+		    chgdt
+		FROM block 
+		WHERE geoaddr like concat ('%',#{geoAddr},'%')
+
+	</select>
+	
+</mapper>

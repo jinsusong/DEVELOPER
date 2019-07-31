@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- JAVA와 연결할 Mapper 파일 설정 -->
+<mapper namespace="poly.persistance.mapper.DeveloperMapper">
+	<!-- 개발팀원 뽑기 리스트 -->
+	<select id="getdeveloperList" resultType="DeveloperDTO">
+		SELECT
+			no AS no, 
+			title AS title,
+			contents AS contents,
+			username AS userName,
+			chgid AS chgId,
+			chgdt AS chgDt,
+            teamid AS teamId,
+            fileno AS fileNo,
+            term AS term,
+            classification AS classification,
+            org_name AS orgName
+		FROM developer INNER JOIN file_info
+        ON developer.fileno = file_info.file_no
+        ORDER BY chgdt DESC;
+	</select>
+	
+	<select id="getdetailDev" resultType="DeveloperDTO" parameterType="DeveloperDTO">
+		SELECT
+			no AS no, 
+			title AS title,
+			contents AS contents,
+			username AS userName,
+			chgid AS chgId,
+			chgdt AS chgDt,
+            teamid AS teamId,
+            fileno AS fileNo,
+            term AS term,
+            classification AS classification,
+            org_name AS orgName
+		FROM developer INNER JOIN file_info
+        ON developer.fileno = file_info.file_no
+        WHERE no = #{no}
+			
+	</select>
+	
+	<!-- 파일 정보에 파일번호 추가하기 위해 파일번호 select -->
+	<select id="getFileNo" resultType="FileDTO">
+		SELECT  IFNULL(MAX(file_no), 0) +1 AS fileNo 
+		FROM file_info
+	</select>
+	
+	<!-- 파일 정보 디비에 넣기 -->
+	<insert id="insertFileInfo" parameterType="FileDTO">
+		INSERT INTO file_info(
+			file_no,
+			org_name,
+			chg_name,
+			file_path,
+			reg_dt,
+			user_name
+		)VALUES(
+			#{fileNo},
+			#{orgName},
+			#{chgName},
+			#{filePath},
+			NOW(),
+			#{userName}
+		)
+	</insert>
+	
+	<!-- 게시판 등록을 위해 파일번호 가져오기 -->
+	<select id="getFileInfo" resultType="FileDTO">
+		SELECT MAX(file_no) AS fileNo
+		FROM file_info
+	</select>
+	
+	<!-- 게시글번호 가져오기 -->
+	<select id="getDevNo" resultType="DeveloperDTO">
+		SELECT  IFNULL(MAX(no), 0) +1 AS NO 
+		  FROM developer
+	</select>
+	
+	<insert id="insertDevProc" parameterType="DeveloperDTO">
+		
+		INSERT INTO developer(
+			no,
+			title,
+			contents,
+			username,
+			fileno,
+			term,
+			classification,
+			teamid,
+			REGID,
+			REGDT,
+			chgid,
+			chgdt
+				
+		)VALUES(
+			#{no},
+			#{title},
+			#{contents},
+			#{userName},
+			#{fileNo},
+			#{term},
+			#{classification},
+			#{no},
+			#{userName},
+			NOW(),
+			#{userName},
+			NOW()
+		)
+	</insert>
+	
+	<!-- 팀 번호 등록을 위해 팀번호 가져오기 -->
+	<select id="getTeamNo" resultType="DeveloperDTO">
+		SELECT  IFNULL(MAX(no), 0) +1 AS no 
+		FROM team_member
+	</select>
+	
+	<insert id="insertTeamProc" parameterType="DeveloperDTO">
+		INSERT INTO team_member(
+			username,
+			teamid,
+			REGDT,
+			REGID,
+			chgdt,
+			chgid
+		)VALUES(
+			#{userName},
+			#{teamId},
+			NOW(),
+			#{userName},
+			NOW(),
+			#{userName}
+		)
+	</insert>
+	
+	<!-- 상세화면 팀 정보 가져오기 -->
+	<select id="getTeamMem" parameterType="DeveloperDTO" resultType="DeveloperDTO">
+		SELECT
+			no AS no,
+			username AS userName,
+			teamid AS teamId,
+			chgdt AS chgDt
+		FROM team_member 
+		WHERE teamid = #{teamId}
+		ORDER BY chgdt DESC
+	</select>
+	
+</mapper>
